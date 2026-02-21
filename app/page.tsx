@@ -1,5 +1,7 @@
-const Home = () => {
-  return <div>Test</div>;
-};
+export default function Home() {
 
-export default Home;
+  return (
+    <div className="flex flex-col h-full">
+    </div>
+  );
+}
