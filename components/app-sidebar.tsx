@@ -27,7 +27,6 @@ const navItems: NavItemDef[] = [
 ];
 
 const staticWorkspaceItems: NavItemDef[] = [
-  { id: "initiatives", title: "Initiatives", icon: Target, url: "/initiatives" },
   { id: "projects", title: "Projects", icon: FolderKanban, url: "/projects" },
 ];
 
