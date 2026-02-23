@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { AddProjectDialog } from "@/components/add-project-dialog";
 import {
   ChevronDown,
   Search,
@@ -12,47 +15,61 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const navItems = [
-  { id: "inbox", title: "Inbox", icon: Inbox },
+type NavItemDef = {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  url: string;
+};
+
+const navItems: NavItemDef[] = [
+  { id: "inbox", title: "Inbox", icon: Inbox, url: "/inbox" },
 ];
 
-const workspaceItems = [
-  { id: "initiatives", title: "Initiatives", icon: Target },
-  { id: "projects", title: "Projects", icon: FolderKanban },
-  { id: "add-projects", title: "Adicionar projetos", icon: Plus },
+const staticWorkspaceItems: NavItemDef[] = [
+  { id: "initiatives", title: "Initiatives", icon: Target, url: "/initiatives" },
+  { id: "projects", title: "Projects", icon: FolderKanban, url: "/projects" },
 ];
 
 function NavItem({
   item,
-  active,
-  onClick,
   iconColor,
 }: {
-  item: { id: string; title: string; icon: React.ElementType };
-  active: boolean;
-  onClick: () => void;
+  item: NavItemDef;
   iconColor?: string;
 }) {
+  const pathname = usePathname();
+  const isActive = pathname === item.url;
+
   return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-2.5 h-[30px] px-2 rounded-[6px] text-[13px] font-medium transition-all duration-100 cursor-pointer
-        ${active
-          ? "bg-white/10 text-[#ececec]"
-          : "text-[#888] hover:text-[#ccc] hover:bg-white/5"
+    <Link
+      href={item.url}
+      className={`w-full flex items-center gap-2.5 h-[30px] px-2 rounded-[6px] text-[13px] font-medium transition-all duration-100
+        ${
+          isActive
+            ? "bg-white/10 text-[#ececec]"
+            : "text-[#888] hover:text-[#ccc] hover:bg-white/5"
         }`}
     >
       <item.icon
-        className={`w-[14px] h-[14px] shrink-0 transition-opacity ${active ? "opacity-80" : "opacity-50"}`}
+        className={`w-[14px] h-[14px] shrink-0 transition-opacity ${isActive ? "opacity-80" : "opacity-50"}`}
         style={iconColor ? { color: iconColor, opacity: 1 } : undefined}
       />
       {item.title}
-    </button>
+    </Link>
   );
 }
 
 export function AppSidebar() {
-  const [active, setActive] = useState("uirefresh");
+  const [projects, setProjects] = useState<NavItemDef[]>([]);
+
+  function handleAddProject(name: string) {
+    const slug = name.toLowerCase().replace(/\s+/g, "-");
+    setProjects((prev) => [
+      ...prev,
+      { id: slug, title: name, icon: FolderKanban, url: `/projects/${slug}` },
+    ]);
+  }
 
   return (
     <div
@@ -82,12 +99,7 @@ export function AppSidebar() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-2">
         <div className="py-1 flex flex-col gap-0.5">
           {navItems.map((item) => (
-            <NavItem
-              key={item.id}
-              item={item}
-              active={active === item.id}
-              onClick={() => setActive(item.id)}
-            />
+            <NavItem key={item.id} item={item} />
           ))}
         </div>
 
@@ -98,14 +110,21 @@ export function AppSidebar() {
             Projetos
             <ChevronRight className="w-2.5 h-2.5 mt-px" />
           </div>
-          {workspaceItems.map((item) => (
-            <NavItem
-              key={item.id}
-              item={item}
-              active={active === item.id}
-              onClick={() => setActive(item.id)}
-            />
+
+          {staticWorkspaceItems.map((item) => (
+            <NavItem key={item.id} item={item} />
           ))}
+
+          {projects.map((item) => (
+            <NavItem key={item.id} item={item} />
+          ))}
+
+          <AddProjectDialog onAdd={handleAddProject}>
+            <button className="w-full flex items-center gap-2.5 h-[30px] px-2 rounded-[6px] text-[13px] font-medium transition-all duration-100 cursor-pointer text-[#555] hover:text-[#999] hover:bg-white/5">
+              <Plus className="w-[14px] h-[14px] shrink-0 opacity-50" />
+              Adicionar projeto
+            </button>
+          </AddProjectDialog>
         </div>
 
         <div className="mx-2 my-1 h-px bg-white/5" />
