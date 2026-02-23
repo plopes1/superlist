@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Filter, X } from "lucide-react";
 import { Task, FilterValue } from "@/models/task";
 import { getTaskStatus } from "@/lib/utils/task-helpers";
 import { Section } from "@/components/tasks/section";
 import { AddTaskDialog } from "@/components/tasks/add-task-dialog";
+import { DeleteProjectDialog } from "@/components/tasks/delete-project-dialog";
 
 const FILTERS: { value: FilterValue; label: string }[] = [
   { value: "all",       label: "Todas"      },
@@ -34,6 +35,7 @@ const INITIAL: Task[] = [
 
 export default function ProjectPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const name = decodeURIComponent(id)
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
@@ -58,6 +60,10 @@ export default function ProjectPage() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }
 
+  function deleteProject() {
+    router.push("/");
+  }
+
   const filtered = useMemo(
     () =>
       filter === "all"
@@ -77,9 +83,10 @@ export default function ProjectPage() {
         <span className="text-[11px] text-[#333]">›</span>
         <span className="text-[11px] font-medium text-[#aaa]">{name}</span>
         <div className="flex-1" />
-        <span className="text-[12px] text-[#444]">
+        <span className="text-[12px] text-[#444] mr-3">
           {completed.length}/{tasks.length} concluídas
         </span>
+        <DeleteProjectDialog projectName={name} onConfirm={deleteProject} />
       </div>
 
       <div className="flex items-center gap-1 px-4 h-[38px] border-b border-white/6 shrink-0 bg-white/1">
