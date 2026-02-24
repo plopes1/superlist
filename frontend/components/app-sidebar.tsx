@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import {
   ChevronDown,
   Search,
   SquarePen,
   Inbox,
-  Target,
   FolderKanban,
   Plus,
   ChevronRight,
 } from "lucide-react";
+import { Project } from "@/models/project";
+import { projectService } from "@/services/projectService";
 
 type NavItemDef = {
   id: string;
@@ -59,15 +59,17 @@ function NavItem({
   );
 }
 
-export function AppSidebar() {
-  const [projects, setProjects] = useState<NavItemDef[]>([]);
+export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) {
+  const router = useRouter();
 
-  function handleAddProject(name: string) {
-    const slug = name.toLowerCase().replace(/\s+/g, "-");
-    setProjects((prev) => [
-      ...prev,
-      { id: slug, title: name, icon: FolderKanban, url: `/projects/${slug}` },
-    ]);
+  async function handleAddProject(name: string) {
+    try {
+      await projectService.create(name);
+      router.refresh();
+    } catch (error) {
+      console.error("Erro ao criar projeto:", error);
+      alert("Não foi possível criar o projeto.");
+    }
   }
 
   return (
@@ -114,8 +116,16 @@ export function AppSidebar() {
             <NavItem key={item.id} item={item} />
           ))}
 
-          {projects.map((item) => (
-            <NavItem key={item.id} item={item} />
+          {initialProjects.map((project) => (
+            <NavItem
+              key={project.id}
+              item={{
+                id: project.id,
+                title: project.name,
+                icon: FolderKanban,
+                url: `/projects/${project.id}`,
+              }}
+            />
           ))}
 
           <AddProjectDialog onAdd={handleAddProject}>

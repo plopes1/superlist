@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppSidebar } from "@/components/app-sidebar";
 import "./globals.css";
+import { projectService } from "@/services/projectService";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
   description: "Your workspace",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const projects = await projectService.getAll().catch(() => []);
+
   return (
     <html lang="en" className="dark">
       <body
@@ -37,7 +40,7 @@ export default function RootLayout({
           gap: "4px",
         }}
       >
-        <AppSidebar />
+        <AppSidebar initialProjects={projects} />
 
         <main
           style={{
