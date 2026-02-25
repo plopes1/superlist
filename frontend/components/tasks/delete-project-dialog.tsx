@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +49,7 @@ export function DeleteProjectDialog({
             onClick={(e) => {
               setTimeout(() => {
                 onConfirm();
+                toast.success("Projeto excluído com sucesso!");
               }, 0);
             }}
             className="bg-destructive hover:bg-destructive/90"

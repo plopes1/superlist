@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -33,6 +34,7 @@ export function EditProjectDialog({ children, currentName, onEdit }: EditProject
       return;
     }
     onEdit(trimmed);
+    toast.success("Projeto renomeado com sucesso!");
     setOpen(false);
   }
 

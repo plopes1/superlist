@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import {
   Dialog,
@@ -25,6 +26,7 @@ export function AddProjectDialog({ children, onAdd }: AddProjectDialogProps) {
     const trimmed = name.trim();
     if (!trimmed) return;
     onAdd(trimmed);
+    toast.success("Projeto criado com sucesso!");
     setOpen(false);
     setName("");
   }

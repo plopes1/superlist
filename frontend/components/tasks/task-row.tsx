@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -82,7 +83,12 @@ export function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => onDelete(task.id)}
+              onClick={() => {
+                setTimeout(() => {
+                  onDelete(task.id);
+                  toast.success("Tarefa excluída com sucesso!");
+                }, 0);
+              }}
               className="bg-destructive hover:bg-destructive/90"
             >
               Excluir

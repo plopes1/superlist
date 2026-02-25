@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Task } from "@/models/task";
+import { toast } from "sonner";
 
 interface AddTaskDialogProps {
   onAdd: (task: Omit<Task, "id" | "done">) => void;
@@ -27,6 +28,9 @@ export function AddTaskDialog({ onAdd }: AddTaskDialogProps) {
     e.preventDefault();
     if (!title.trim() || !assignee.trim() || !dueDate) return;
     onAdd({ title: title.trim(), assignee: assignee.trim(), dueDate });
+
+    toast.success("Tarefa criada com sucesso!");
+
     setTitle("");
     setAssignee("");
     setDueDate("");
