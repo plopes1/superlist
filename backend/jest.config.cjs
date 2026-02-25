@@ -4,7 +4,9 @@ module.exports = {
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
-    '^.*/generated/prisma/(.*)\\.js$': '<rootDir>/generated/prisma/$1.js',
+    'generated/prisma/index\\.js$': '<rootDir>/generated/prisma/index.js',
+    'generated/prisma/client\\.js$': '<rootDir>/generated/prisma/client.js',
+    
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {
