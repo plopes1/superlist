@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Filter, X } from "lucide-react";
 import { Task, FilterValue } from "@/models/task";
@@ -8,6 +8,8 @@ import { getTaskStatus } from "@/lib/utils/task-helpers";
 import { Section } from "@/components/tasks/section";
 import { AddTaskDialog } from "@/components/tasks/add-task-dialog";
 import { DeleteProjectDialog } from "@/components/tasks/delete-project-dialog";
+import { taskService } from "@/services/taskService";
+import { projectService } from "@/services/projectService";
 
 const FILTERS: { value: FilterValue; label: string }[] = [
   { value: "all",       label: "Todas"      },
@@ -16,52 +18,68 @@ const FILTERS: { value: FilterValue; label: string }[] = [
   { value: "completed", label: "Concluídas" },
 ];
 
-// Mock
-
-const today = new Date();
-const fmt = (offset: number) => {
-  const d = new Date(today);
-  d.setDate(d.getDate() + offset);
-  return d.toISOString().slice(0, 10);
-};
-
-const INITIAL: Task[] = [
-  { id: "1", title: "Criar estrutura do projeto",  assignee: "robson", dueDate: fmt(-2), done: true  },
-  { id: "2", title: "Configurar banco de dados",    assignee: "robson", dueDate: fmt(-1), done: false },
-  { id: "3", title: "Implementar autenticação",     assignee: "thiago", dueDate: fmt(0),  done: false },
-  { id: "4", title: "Criar endpoints da API REST",  assignee: "thiago", dueDate: fmt(1),  done: false },
-  { id: "5", title: "Escrever testes unitários",    assignee: "thiago", dueDate: fmt(3),  done: false },
-];
-
 export default function ProjectPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const name = decodeURIComponent(id)
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-  const [tasks, setTasks] = useState<Task[]>(INITIAL);
+  
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [projectName, setProjectName] = useState("Carregando...");
   const [filter, setFilter] = useState<FilterValue>("all");
 
-  function addTask(data: Omit<Task, "id" | "done">) {
-    setTasks((prev) => [
-      ...prev,
-      { ...data, id: crypto.randomUUID(), done: false },
-    ]);
+  useEffect(() => {
+    taskService.getByProjectId(id).then(setTasks).catch(console.error);
+    
+    projectService.getAll().then(projs => {
+      const p = projs.find(proj => proj.id === id);
+      if (p) setProjectName(p.name);
+    }).catch(console.error);
+  }, [id]);
+
+  async function addTask(data: Omit<Task, "id" | "done">) {
+    try {
+      const newTask = await taskService.create({
+        title: data.title,
+        assignee: data.assignee,
+        dueDate: data.dueDate,
+        projectId: id,
+      });
+      setTasks((prev) => [...prev, newTask]);
+    } catch (error) {
+      console.error("Erro ao criar tarefa:", error);
+    }
   }
 
-  function toggleTask(id: string) {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
-    );
+  async function toggleTask(taskId: string) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)));
+
+    try {
+      await taskService.update(taskId, { done: !task.done });
+    } catch (error) {
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, done: task.done } : t)));
+      console.error("Erro ao atualizar tarefa:", error);
+    }
   }
 
-  function deleteTask(id: string) {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+  async function deleteTask(taskId: string) {
+    try {
+      await taskService.delete(taskId);
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    } catch (error) {
+      console.error("Erro ao deletar tarefa:", error);
+    }
   }
 
-  function deleteProject() {
-    router.push("/");
+  async function deleteProject() {
+    try {
+      await projectService.delete(id);
+      router.refresh(); 
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao deletar projeto:", error);
+    }
   }
 
   const filtered = useMemo(
@@ -81,12 +99,12 @@ export default function ProjectPage() {
       <div className="flex items-center gap-2 px-5 h-[42px] border-b border-white/6 shrink-0">
         <span className="text-[11px] text-[#555]">Projetos</span>
         <span className="text-[11px] text-[#333]">›</span>
-        <span className="text-[11px] font-medium text-[#aaa]">{name}</span>
+        <span className="text-[11px] font-medium text-[#aaa]">{projectName}</span>
         <div className="flex-1" />
         <span className="text-[12px] text-[#444] mr-3">
           {completed.length}/{tasks.length} concluídas
         </span>
-        <DeleteProjectDialog projectName={name} onConfirm={deleteProject} />
+        <DeleteProjectDialog projectName={projectName} onConfirm={deleteProject} />
       </div>
 
       <div className="flex items-center gap-1 px-4 h-[38px] border-b border-white/6 shrink-0 bg-white/1">
@@ -115,13 +133,13 @@ export default function ProjectPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {(filter === "all" || filter === "overdue") && (
-          <Section label="Vencidas"   status="overdue"   tasks={overdue}   onToggle={toggleTask} onDelete={deleteTask} />
+        {(filter === "all" || filter === "overdue") && overdue.length > 0 && (
+          <Section label="Vencidas"  status="overdue"  tasks={overdue}   onToggle={toggleTask} onDelete={deleteTask} />
         )}
         {(filter === "all" || filter === "pending") && (
-          <Section label="Pendentes"  status="pending"   tasks={pending}   onToggle={toggleTask} onDelete={deleteTask} />
+          <Section label="Pendentes" status="pending"  tasks={pending}   onToggle={toggleTask} onDelete={deleteTask} />
         )}
-        {(filter === "all" || filter === "completed") && (
+        {(filter === "all" || filter === "completed") && completed.length > 0 && (
           <Section label="Concluídas" status="completed" tasks={completed} onToggle={toggleTask} onDelete={deleteTask} />
         )}
 

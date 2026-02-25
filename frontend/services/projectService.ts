@@ -19,5 +19,12 @@ export const projectService = {
     });
     if (!response.ok) throw new Error('Erro ao criar projeto');
     return response.json();
+  },
+
+  async delete(id: string): Promise<void> {
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Erro ao apagar projeto');
   }
 };

@@ -2,17 +2,24 @@ import { Task, Status } from "@/models/task";
 
 export function getTaskStatus(task: Task): Status {
   if (task.done) return "completed";
+  
+  if (!task.dueDate) return "pending";
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const due = new Date(task.dueDate + "T00:00:00");
+  const due = new Date(task.dueDate);
+  due.setHours(0, 0, 0, 0);
 
   return due < today ? "overdue" : "pending";
 }
 
-export function formatTaskDate(isoDate: string): string {
-  const d = new Date(isoDate + "T00:00:00");
+export function formatTaskDate(isoDate?: string | null): string {
+  if (!isoDate) return "";
+
+  const d = new Date(isoDate);
+  d.setHours(0, 0, 0, 0);
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
