@@ -21,6 +21,16 @@ export const projectService = {
     return response.json();
   },
 
+  async update(id: string, name: string): Promise<Project> {
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      method: 'PATCH', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) throw new Error('Erro ao editar projeto');
+    return response.json();
+  },
+
   async delete(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/projects/${id}`, {
       method: 'DELETE',

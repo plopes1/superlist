@@ -15,18 +15,24 @@ import {
 interface DeleteProjectDialogProps {
   projectName: string;
   onConfirm: () => void;
+  children?: React.ReactNode;
 }
 
 export function DeleteProjectDialog({
   projectName,
   onConfirm,
+  children,
 }: DeleteProjectDialogProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button className="text-[12px] text-[#6366f1] hover:text-[#818cf8] transition-colors">
-          Delete project
-        </button>
+        {children ? (
+          children
+        ) : (
+          <button className="text-[12px] text-[#6366f1] hover:text-[#818cf8] transition-colors">
+            Delete project
+          </button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
