@@ -4,7 +4,8 @@ module.exports = {
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
-    '^(\\.{1,2}/(?!.*generated).*)\\.js$': '$1',
+    '^.*generated/prisma.*$': '<rootDir>/tests/mocks/prismaMock.ts',
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {
     '^.+\\.tsx?$': [

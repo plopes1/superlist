@@ -1,30 +1,17 @@
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import type { Request, Response } from 'express';
-import type { ProjectController as ProjectControllerType } from '../../src/controllers/ProjectController.js';
 
-const mockPrisma = {
-  project: {
-    create: jest.fn(),
-    findMany: jest.fn(),
-  },
-};
-
-jest.unstable_mockModule('../../generated/prisma/index.js', () => ({
-  PrismaClient: jest.fn(() => mockPrisma),
-}), { virtual: true });
-
-const { ProjectController } = await import('../../src/controllers/ProjectController.js');
+import { ProjectController } from '../../src/controllers/ProjectController.js';
+import { mockPrisma } from '../mocks/prismaMock.js';
 
 describe('ProjectController', () => {
-  let projectController: ProjectControllerType;
+  let projectController: ProjectController;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
 
   beforeEach(() => {
     projectController = new ProjectController();
-    
     mockRequest = {};
-    
     mockResponse = {
       status: jest.fn().mockReturnThis() as any,
       json: jest.fn() as any,
@@ -54,7 +41,6 @@ describe('ProjectController', () => {
     await projectController.create(mockRequest as Request, mockResponse as Response);
 
     expect(mockPrisma.project.create).toHaveBeenCalledWith({ data: { name: 'Novo Projeto Teste' } });
-    
     expect(mockResponse.status).toHaveBeenCalledWith(201);
     expect(mockResponse.json).toHaveBeenCalledWith(projetoCriado);
   });
