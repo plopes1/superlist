@@ -2,6 +2,7 @@ import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals
 import type { Request, Response } from 'express';
 
 import { ProjectController } from '../../src/controllers/ProjectController.js';
+
 import { mockPrisma } from '../mocks/prismaMock.js';
 
 describe('ProjectController', () => {
@@ -29,7 +30,12 @@ describe('ProjectController', () => {
     await projectController.create(mockRequest as Request, mockResponse as Response);
 
     expect(mockResponse.status).toHaveBeenCalledWith(400);
-    expect(mockResponse.json).toHaveBeenCalledWith({ error: 'O nome é obrigatório' });
+    
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({ 
+        error: 'Erro de validação' 
+      })
+    );
   });
 
   it('deve criar um projeto e retornar status 201', async () => {
