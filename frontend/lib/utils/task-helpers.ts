@@ -1,24 +1,29 @@
 import { Task, Status } from "@/models/task";
 
+export function parseLocalDate(isoString: string): Date {
+  if (!isoString) return new Date();
+  
+  const [year, month, day] = isoString.split('T')[0].split('-');
+  
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
 export function getTaskStatus(task: Task): Status {
   if (task.done) return "completed";
-  
   if (!task.dueDate) return "pending";
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const due = new Date(task.dueDate);
-  due.setHours(0, 0, 0, 0);
+  const due = parseLocalDate(task.dueDate as string);
 
   return due < today ? "overdue" : "pending";
 }
 
-export function formatTaskDate(isoDate?: string | null): string {
+export function formatTaskDate(isoDate?: string | Date | null): string {
   if (!isoDate) return "";
 
-  const d = new Date(isoDate);
-  d.setHours(0, 0, 0, 0);
+  const d = typeof isoDate === 'string' ? parseLocalDate(isoDate) : isoDate;
   
   const today = new Date();
   today.setHours(0, 0, 0, 0);
