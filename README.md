@@ -32,25 +32,31 @@ Aplicação fullstack para gestão de projetos e tarefas.
 ### Pré-requisitos
 * Node.js (versão 18 ou superior)
 * Git
+* Docker e Docker Compose
 
-### Configuração do Backend
+### Executando o Backend (com Docker para o Banco de Dados)
+
+O projeto utiliza Docker para facilitar a configuração do banco de dados.
 
 1. Navegue até a pasta do backend:
 cd backend
 
-2. Instale as dependências:
+2. Suba o container do banco de dados em segundo plano:
+docker-compose up -d
+
+3. Instale as dependências do backend:
 npm install
 
-3. Gere o cliente do Prisma e sincronize o banco de dados:
+4. Gere o cliente do Prisma e crie as tabelas no banco:
 npx prisma generate
 npx prisma db push
 
-4. Inicie o servidor em modo de desenvolvimento:
+5. Inicie o servidor:
 npm run dev
 
 A API estará rodando em http://localhost:3333
 
-### Configuração do Frontend
+### Executando o Frontend
 
 1. Abra um novo terminal e navegue até a pasta do frontend:
 cd frontend
@@ -65,7 +71,7 @@ O frontend estará disponível no seu navegador em http://localhost:3000
 
 ## Testes Automatizados
 
-O projeto conta com testes unitários no backend configurados com Jest. Para executá-los:
+O projeto conta com testes unitários no backend configurados com Jest. Para executá-los e verificar a integridade da aplicação:
 
 cd backend
 npm run test
