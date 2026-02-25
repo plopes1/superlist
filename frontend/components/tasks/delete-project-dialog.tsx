@@ -45,7 +45,11 @@ export function DeleteProjectDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={(e) => {
+              setTimeout(() => {
+                onConfirm();
+              }, 0);
+            }}
             className="bg-destructive hover:bg-destructive/90"
           >
             Excluir projeto

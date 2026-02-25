@@ -75,7 +75,7 @@ export default function ProjectPage() {
   async function deleteProject() {
     try {
       await projectService.delete(id);
-      router.refresh(); 
+      window.dispatchEvent(new CustomEvent("projectDeleted", { detail: { id } }));
       router.push("/");
     } catch (error) {
       console.error("Erro ao deletar projeto:", error);

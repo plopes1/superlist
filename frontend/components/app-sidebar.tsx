@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AddProjectDialog } from "@/components/add-project-dialog";
@@ -122,10 +123,25 @@ function ProjectNavItem({
 export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [projects, setProjects] = useState(initialProjects);
+
+  useEffect(() => {
+    setProjects(initialProjects);
+  }, [initialProjects]);
+
+  useEffect(() => {
+    const handleProjectDeleted = (e: Event) => {
+      const customEvent = e as CustomEvent<{ id: string }>;
+      setProjects((prev) => prev.filter((p) => p.id !== customEvent.detail.id));
+    };
+    window.addEventListener("projectDeleted", handleProjectDeleted);
+    return () => window.removeEventListener("projectDeleted", handleProjectDeleted);
+  }, []);
 
   async function handleAddProject(name: string) {
     try {
       const newProject = await projectService.create(name);
+      setProjects((prev) => [...prev, newProject]);
       router.refresh();
       router.push(`/projects/${newProject.id}`);
     } catch (error) {
@@ -135,7 +151,8 @@ export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) 
 
   async function handleEditProject(id: string, newName: string) {
     try {
-      await projectService.update(id, newName);
+      const updatedProject = await projectService.update(id, newName);
+      setProjects((prev) => prev.map((p) => (p.id === id ? updatedProject : p)));
       router.refresh(); 
     } catch (error) {
       console.error("Erro ao editar projeto:", error);
@@ -145,6 +162,7 @@ export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) 
   async function handleDeleteProject(id: string) {
     try {
       await projectService.delete(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
       if (pathname === `/projects/${id}`) {
         router.push("/");
       }
@@ -187,7 +205,7 @@ export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) 
             <ChevronRight className="w-2.5 h-2.5 mt-px" />
           </div>
 
-          {initialProjects.map((project) => (
+          {projects.map((project) => (
             <ProjectNavItem
               key={project.id}
               project={project}
