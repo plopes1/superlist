@@ -16,7 +16,6 @@ import {
   ChevronDown,
   Search,
   SquarePen,
-  Inbox,
   FolderKanban,
   Plus,
   ChevronRight,
@@ -27,39 +26,6 @@ import {
 import { Project } from "@/models/project";
 import { projectService } from "@/services/projectService";
 
-type NavItemDef = {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-  url: string;
-};
-
-const navItems: NavItemDef[] = [
-  { id: "inbox", title: "Inbox", icon: Inbox, url: "/inbox" },
-];
-
-function NavItem({ item, iconColor }: { item: NavItemDef; iconColor?: string }) {
-  const pathname = usePathname();
-  const isActive = pathname === item.url;
-
-  return (
-    <Link
-      href={item.url}
-      className={`w-full flex items-center gap-2.5 h-[30px] px-2 rounded-[6px] text-[13px] font-medium transition-all duration-100
-        ${
-          isActive
-            ? "bg-white/10 text-[#ececec]"
-            : "text-[#888] hover:text-[#ccc] hover:bg-white/5"
-        }`}
-    >
-      <item.icon
-        className={`w-[14px] h-[14px] shrink-0 transition-opacity ${isActive ? "opacity-80" : "opacity-50"}`}
-        style={iconColor ? { color: iconColor, opacity: 1 } : undefined}
-      />
-      {item.title}
-    </Link>
-  );
-}
 
 function ProjectNavItem({
   project,
@@ -81,7 +47,7 @@ function ProjectNavItem({
           ${
             isActive
               ? "bg-white/10 text-[#ececec]"
-              : "text-[#888] hover:text-[#ccc] hover:bg-white/5"
+              : "text-[#aaa] hover:text-white hover:bg-white/5"
           }`}
       >
         <FolderKanban
@@ -193,11 +159,6 @@ export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) 
       </div>
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-2">
-        <div className="py-1 flex flex-col gap-0.5">
-          {navItems.map((item) => <NavItem key={item.id} item={item} />)}
-        </div>
-
-        <div className="mx-2 my-1 h-px bg-white/5" />
 
         <div className="py-1 flex flex-col gap-0.5">
           <div className="flex items-center gap-1 h-7 px-2 text-[11px] font-medium text-[#4a4a4a] uppercase tracking-widest cursor-pointer hover:text-[#777] transition-colors select-none">
