@@ -11,6 +11,9 @@ jobs:
     name: Backend Tests
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: "postgresql://banco-falso:senha-falsa@localhost:5432/db-falso"
+
     defaults:
       run:
         working-directory: ./backend
