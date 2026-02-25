@@ -44,14 +44,17 @@ cd backend
 2. Suba o container do banco de dados em segundo plano:
 docker-compose up -d
 
-3. Instale as dependências do backend:
+3. Crie um arquivo `.env` na raiz da pasta backend com a URL de conexão do seu banco de dados (que deve bater com as credenciais do docker-compose). Exemplo:
+DATABASE_URL="postgresql://postgres:suasenha@localhost:5432/superlist?schema=public"
+
+4. Instale as dependências do backend:
 npm install
 
-4. Gere o cliente do Prisma e crie as tabelas no banco:
+5. Gere o cliente do Prisma e crie as tabelas no banco:
 npx prisma generate
 npx prisma db push
 
-5. Inicie o servidor:
+6. Inicie o servidor:
 npm run dev
 
 A API estará rodando em http://localhost:3333
