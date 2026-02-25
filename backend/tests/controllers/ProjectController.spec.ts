@@ -11,7 +11,7 @@ const mockPrisma = {
 
 jest.unstable_mockModule('../../generated/prisma/index.js', () => ({
   PrismaClient: jest.fn(() => mockPrisma),
-}));
+}), { virtual: true });
 
 const { ProjectController } = await import('../../src/controllers/ProjectController.js');
 
