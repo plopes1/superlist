@@ -31,7 +31,7 @@ export function DeleteProjectDialog({
           children
         ) : (
           <button className="text-[12px] text-[#6366f1] hover:text-[#818cf8] transition-colors">
-            Delete project
+            Apagar projeto
           </button>
         )}
       </AlertDialogTrigger>

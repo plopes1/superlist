@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
 import {
   Dialog,
   DialogContent,
@@ -14,83 +18,122 @@ import { Input } from "@/components/ui/input";
 import { Task } from "@/models/task";
 import { toast } from "sonner";
 
+const formSchema = z.object({
+  title: z.string().min(4, "O título precisa de ter pelo menos 4 caracteres"),
+  assignee: z.string().min(2, "O responsável é obrigatório"),
+  dueDate: z.string().min(1, "A data é obrigatória"),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
 interface AddTaskDialogProps {
   onAdd: (task: Omit<Task, "id" | "done">) => void;
 }
 
 export function AddTaskDialog({ onAdd }: AddTaskDialogProps) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [assignee, setAssignee] = useState("");
-  const [dueDate, setDueDate] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim() || !assignee.trim() || !dueDate) return;
-    onAdd({ title: title.trim(), assignee: assignee.trim(), dueDate });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+    defaultValues: {
+      title: "",
+      assignee: "",
+      dueDate: "",
+    },
+  });
 
-    toast.success("Tarefa criada com sucesso!");
+  function onSubmit(data: FormData) {
+    onAdd({
+      title: data.title.trim(),
+      assignee: data.assignee.trim(),
+      dueDate: data.dueDate,
+    });
 
-    setTitle("");
-    setAssignee("");
-    setDueDate("");
-    setOpen(false);
+    toast.success("Tarefa criada com sucesso!", {
+      description: `Atribuída a ${data.assignee.trim()}`,
+    });
+
+    reset();
+    setOpen(false); 
+  }
+
+  function handleOpenChange(isOpen: boolean) {
+    setOpen(isOpen);
+    if (!isOpen) reset(); 
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button className="flex items-center gap-1.5 text-[12px] text-[#4a4a6a] hover:text-[#6366f1] transition-colors py-1 px-2 rounded-md hover:bg-[#6366f1]/8">
           <Plus className="w-[13px] h-[13px]" />
-          Add Task
+          Adicionar Tarefa
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      
+      <DialogContent className="sm:max-w-sm border-white/10 bg-[#1c1c1f]">
         <DialogHeader>
-          <DialogTitle>Nova tarefa</DialogTitle>
+          <DialogTitle className="text-white">Nova tarefa</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">
-          <div className="flex flex-col gap-1">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
+          
+          <div className="flex flex-col gap-1.5">
             <label className="text-[11px] text-[#888] uppercase tracking-wide">
               Nome da tarefa
             </label>
             <Input
               placeholder="Ex: Implementar autenticação"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
               autoFocus
-              required
+              className="bg-white/5 border-white/10 text-white"
+              {...register("title")}
             />
+            {errors.title && <span className="text-[10px] text-red-400">{errors.title.message}</span>}
           </div>
-          <div className="flex flex-col gap-1">
+
+          <div className="flex flex-col gap-1.5">
             <label className="text-[11px] text-[#888] uppercase tracking-wide">
               Responsável
             </label>
             <Input
               placeholder="@nome"
-              value={assignee}
-              onChange={(e) => setAssignee(e.target.value)}
-              required
+              className="bg-white/5 border-white/10 text-white"
+              {...register("assignee")}
             />
+            {errors.assignee && <span className="text-[10px] text-red-400">{errors.assignee.message}</span>}
           </div>
-          <div className="flex flex-col gap-1">
+
+          <div className="flex flex-col gap-1.5">
             <label className="text-[11px] text-[#888] uppercase tracking-wide">
               Data de conclusão
             </label>
             <Input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              required
+              className="bg-white/5 border-white/10 text-white scheme-dark"
+              {...register("dueDate")}
             />
+            {errors.dueDate && <span className="text-[10px] text-red-400">{errors.dueDate.message}</span>}
           </div>
-          <div className="flex justify-end gap-2 mt-1">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+
+          <div className="flex justify-end gap-2 mt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => handleOpenChange(false)}
+              className="border-white/10 text-white hover:bg-white/10 hover:text-white"
+            >
               Cancelar
             </Button>
+            
             <Button
               type="submit"
-              disabled={!title.trim() || !assignee.trim() || !dueDate}
+              className="bg-[#6366f1] text-white hover:bg-[#4f46e5]"
             >
               Criar tarefa
             </Button>

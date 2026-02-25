@@ -143,7 +143,7 @@ export function AppSidebar({ initialProjects }: { initialProjects: Project[] }) 
       <div className="px-3 pt-3 pb-2 shrink-0">
         <div className="flex items-center justify-between">
           <button className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/6 transition-colors group">
-            <div className="w-[18px] h-[18px] rounded-[4px] bg-white flex items-center justify-center shrink-0" />
+            <img src="/logo.png" alt="SuperList Logo" className="w-[18px] h-[18px] rounded-[4px] shrink-0 object-contain" />
             <span className="text-[13px] font-semibold text-[#e5e5e5] tracking-tight">SuperList</span>
             <ChevronDown className="w-3 h-3 text-[#666] group-hover:text-[#999] transition-colors ml-0.5" />
           </button>
