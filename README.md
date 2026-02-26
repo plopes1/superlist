@@ -51,7 +51,7 @@ DATABASE_URL="postgresql://postgres:suasenha@localhost:5432/superlist?schema=pub
 npm install
 
 5. Gere o cliente do Prisma e crie as tabelas no banco:
-npx prisma generate
+npx prisma generate &&
 npx prisma db push
 
 6. Inicie o servidor:
